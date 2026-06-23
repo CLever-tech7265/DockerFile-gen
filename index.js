@@ -7,11 +7,14 @@ const { getAnalyzer } = require("./src/analyzers");
 const { buildContext } = require("./src/contextBuilder");
 const { generateDockerfile } = require("./src/generator");
 
-function main() {
+const { loadEnv } = require("./src/env");
+const { promptEnv } = require("./src/envPrompt");
+const { saveEnv } = require("./src/envWriter");
+
+async function main() {
 
     const type = detectLanguage();
 
-    
     const analyzer = getAnalyzer(type);
 
     if (!analyzer) {
@@ -21,7 +24,13 @@ function main() {
 
     const analysis = analyzer();
 
-    const context = buildContext(type, analysis);
+    // 🟢 ENV FLOW
+    let env = loadEnv();
+    env = await promptEnv(env);
+    saveEnv(env);
+
+    // 🟢 build context עם env
+    const context = buildContext(type, analysis, env);
 
     const dockerfile = generateDockerfile(context);
 

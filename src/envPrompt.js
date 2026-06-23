@@ -1,5 +1,4 @@
-const inquirer = require("inquirer");
-
+const inquirer = require("inquirer").default;
 async function promptEnv(env) {
 
     const result = {};

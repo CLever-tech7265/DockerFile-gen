@@ -1,24 +1,4 @@
-const fs = require("fs");
-const path = require("path");
-const dotenv = require("dotenv");
-
-function loadEnv() {
-    const envPath = path.join(process.cwd(), ".env");
-
-    if (fs.existsSync(envPath)) {
-        const result = dotenv.config({ path: envPath });
-        return result.parsed || {};
-    }
-
-    return {
-        PORT: "3000",
-        NODE_ENV: "production"
-    };
-}
-
-function buildContext(type, analysis) {
-
-    const env = loadEnv();
+function buildContext(type, analysis, env) {
 
     const PORT = env.PORT;
 
@@ -38,8 +18,8 @@ function buildContext(type, analysis) {
             port: PORT || 3000,
             expose: PORT || 3000,
             env: {
-                NODE_ENV: env.NODE_ENV || "production",
-                PORT: PORT || 3000
+                ...env
+
             }
         };
     }
@@ -53,8 +33,7 @@ function buildContext(type, analysis) {
             port: PORT || 8000,
             expose: PORT || 8000,
             env: {
-                PYTHONUNBUFFERED: "1",
-                PORT: PORT || 8000
+                ...env
             }
         };
     }
@@ -68,7 +47,7 @@ function buildContext(type, analysis) {
             port: PORT || 8080,
             expose: PORT || 8080,
             env: {
-                PORT: PORT || 8080
+                ...env
             }
         };
     }
@@ -82,8 +61,7 @@ function buildContext(type, analysis) {
             port: PORT || 8080,
             expose: PORT || 8080,
             env: {
-                JAVA_ENV: env.JAVA_ENV || "production",
-                PORT: PORT || 8080
+                ...env
             }
         };
     }
@@ -97,8 +75,7 @@ function buildContext(type, analysis) {
             port: PORT || 5000,
             expose: PORT || 5000,
             env: {
-                DOTNET_ENVIRONMENT: env.DOTNET_ENVIRONMENT || "Production",
-                PORT: PORT || 5000
+                ...env
             }
         };
     }
@@ -112,7 +89,5 @@ function buildContext(type, analysis) {
         env
     };
 }
-
-module.exports = { buildContext };
 
 module.exports = { buildContext };
