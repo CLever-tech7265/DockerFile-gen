@@ -1,45 +1,57 @@
-function resolveDockerImage(type, strategy) {
+function resolveDockerImage(type, strategy, version) {
 
     // 🟢 Node.js
     if (type === "node") {
 
+        const v = version || 18;
+
         if (strategy === "LIGHT") {
-            return "node:18-alpine";
+            return `node:${v}-alpine`;
         }
 
         if (strategy === "STANDARD") {
-            return "node:18-slim";
+            return `node:${v}-slim`;
         }
 
-        return "node:18";
+        return `node:${v}`;
     }
 
     // 🟢 Python
     if (type === "python") {
 
+        const v = version || "3.11";
+
         if (strategy === "LIGHT") {
-            return "python:3.11-alpine";
+            return `python:${v}-alpine`;
         }
 
         if (strategy === "HEAVY") {
-            return "python:3.11";
+            return `python:${v}`;
         }
 
-        return "python:3.11-slim";
+        return `python:${v}-slim`;
     }
 
     // 🟢 Go
     if (type === "go") {
 
+        const v = version || "1.22";
+
         if (strategy === "LIGHT") {
-            return "golang:1.22-alpine";
+            return `golang:${v}-alpine`;
         }
 
-        return "golang:1.22";
+        return `golang:${v}`;
     }
 
     // 🟢 Java
     if (type === "java") {
+
+        const v = version || 17;
+
+        if (v >= 21) {
+            return "eclipse-temurin:21";
+        }
 
         return "eclipse-temurin:17";
     }
@@ -47,7 +59,9 @@ function resolveDockerImage(type, strategy) {
     // 🟢 C#
     if (type === "csharp") {
 
-        return "mcr.microsoft.com/dotnet/sdk:8.0";
+        const v = version || "8.0";
+
+        return `mcr.microsoft.com/dotnet/sdk:${v}`;
     }
 
     // fallback

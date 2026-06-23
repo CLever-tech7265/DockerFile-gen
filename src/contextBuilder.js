@@ -1,5 +1,6 @@
 const { detectImageStrategy } = require("./imaiges/imageStrategyDetector");
 const { resolveDockerImage } = require("./imaiges/imageResolver");
+const { detectProjectVersion } = require("./projectVersionDetector");
 
 function buildContext(type, analysis, env) {
 
@@ -14,13 +15,16 @@ function buildContext(type, analysis, env) {
         runCmd: analysis.runCmd
     };
 
-    // 🧠 1. קביעת strategy לפי הפרויקט
+    // 🧠 1. strategy לפי פרויקט
     const strategy = detectImageStrategy(type);
 
-    // 🧠 2. בחירת image מדויק לפי type + strategy
-    const image = resolveDockerImage(type, strategy);
+    // 🧠 2. version אמיתי מהפרויקט (NEW)
+    const version = detectProjectVersion(type);
 
-    // 🧠 3. פורטים ברירת מחדל לפי שפה בלבד
+    // 🧠 3. image מדויק לפי type + strategy + version
+    const image = resolveDockerImage(type, strategy, version);
+
+    // 🧠 4. פורטים ברירת מחדל לפי שפה
     const portDefaults = {
         node: 3000,
         python: 8000,
@@ -31,7 +35,7 @@ function buildContext(type, analysis, env) {
 
     const finalPort = PORT || portDefaults[type] || null;
 
-    // 🧠 4. env final (לא מכריחים, רק אם קיים או מינימום PORT)
+    // 🧠 5. env final
     const finalEnv = hasEnv
         ? env
         : finalPort
