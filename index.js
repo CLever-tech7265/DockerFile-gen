@@ -7,9 +7,11 @@ const { getAnalyzer } = require("./src/analyzers");
 const { buildContext } = require("./src/contextBuilder");
 const { generateDockerfile } = require("./src/generator");
 
-const { loadEnv } = require("./src/env");
-const { promptEnv } = require("./src/envPrompt");
-const { saveEnv } = require("./src/envWriter");
+// 🟢 NEW
+const { scanProjectEnv } = require("./src/env/envScanner");
+const { loadEnv } = require("./src/env/env");
+const { buildEnvModel } = require("./src/env/envBuilder");
+const { promptEnv } = require("./src/env/envPrompt");
 
 async function main() {
 
@@ -24,11 +26,19 @@ async function main() {
 
     const analysis = analyzer();
 
-    // 🟢 ENV FLOW
-    let env = loadEnv();
-    env = await promptEnv(env);
+    // 🟢 1. סורק מה הקוד צריך
+    const keysFromCode = scanProjectEnv();
 
-    // 🟢 build context עם env
+    // 🟢 2. טוען .env אם קיים
+    const envFile = loadEnv();
+
+    // 🟢 3. בונה מודל מאוחד
+    let envModel = buildEnvModel(keysFromCode, envFile);
+
+    // 🟢 4. נותן למשתמש לבחור/לשנות
+    const env = await promptEnv(envModel);
+
+    // 🟢 5. בונה Docker context
     const context = buildContext(type, analysis, env);
 
     const dockerfile = generateDockerfile(context);
