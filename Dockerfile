@@ -4,7 +4,6 @@ WORKDIR /app
 
 ENV PORT=3000
 ENV NODE_ENV=production
-ENV ABCD=aaaa
 
 RUN npm install
 

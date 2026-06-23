@@ -15,10 +15,7 @@ function loadEnv() {
         return result.parsed || {};
     }
 
-    return {
-        PORT: "3000",
-        NODE_ENV: "production"
-    };
+    return {};
 }
 
 module.exports = { loadEnv };

@@ -1,6 +1,8 @@
 function buildContext(type, analysis, env) {
 
-    const PORT = env.PORT;
+    const hasEnv = env && Object.keys(env).length > 0;
+
+    const PORT = hasEnv ? env.PORT : null;
 
     const base = {
         type,
@@ -9,17 +11,36 @@ function buildContext(type, analysis, env) {
         runCmd: analysis.runCmd
     };
 
+    // 🧠 defaults לפי שפה
+    const defaults = {
+        node: { port: 3000, image: "node:18" },
+        python: { port: 8000, image: "python:3.11" },
+        go: { port: 8080, image: "golang:1.22" },
+        java: { port: 8080, image: "openjdk:17" },
+        csharp: { port: 5000, image: "mcr.microsoft.com/dotnet/sdk:8.0" }
+    };
+
+    const lang = defaults[type] || {
+        port: null,
+        image: "node:18"
+    };
+
+    const finalPort = PORT || lang.port;
+
+    const finalEnv = hasEnv
+        ? env
+        : { PORT: String(lang.port) };
+
     // 🟢 Node
     if (type === "node") {
         return {
             ...base,
-            image: "node:18",
+            image: lang.image,
             workdir: "/app",
-            port: PORT || 3000,
-            expose: PORT || 3000,
+            port: finalPort,
+            expose: finalPort,
             env: {
-                ...env
-
+                ...finalEnv
             }
         };
     }
@@ -28,12 +49,12 @@ function buildContext(type, analysis, env) {
     if (type === "python") {
         return {
             ...base,
-            image: "python:3.11",
+            image: lang.image,
             workdir: "/app",
-            port: PORT || 8000,
-            expose: PORT || 8000,
+            port: finalPort,
+            expose: finalPort,
             env: {
-                ...env
+                ...finalEnv
             }
         };
     }
@@ -42,12 +63,12 @@ function buildContext(type, analysis, env) {
     if (type === "go") {
         return {
             ...base,
-            image: "golang:1.22",
+            image: lang.image,
             workdir: "/app",
-            port: PORT || 8080,
-            expose: PORT || 8080,
+            port: finalPort,
+            expose: finalPort,
             env: {
-                ...env
+                ...finalEnv
             }
         };
     }
@@ -56,12 +77,12 @@ function buildContext(type, analysis, env) {
     if (type === "java") {
         return {
             ...base,
-            image: "openjdk:17",
+            image: lang.image,
             workdir: "/app",
-            port: PORT || 8080,
-            expose: PORT || 8080,
+            port: finalPort,
+            expose: finalPort,
             env: {
-                ...env
+                ...finalEnv
             }
         };
     }
@@ -70,12 +91,12 @@ function buildContext(type, analysis, env) {
     if (type === "csharp") {
         return {
             ...base,
-            image: "mcr.microsoft.com/dotnet/sdk:8.0",
+            image: lang.image,
             workdir: "/app",
-            port: PORT || 5000,
-            expose: PORT || 5000,
+            port: finalPort,
+            expose: finalPort,
             env: {
-                ...env
+                ...finalEnv
             }
         };
     }
@@ -83,10 +104,10 @@ function buildContext(type, analysis, env) {
     // fallback
     return {
         ...base,
-        image: "node:18",
+        image: lang.image,
         workdir: "/app",
-        port: PORT || null,
-        env
+        port: finalPort,
+        env: finalEnv
     };
 }
 

@@ -27,7 +27,6 @@ async function main() {
     // 🟢 ENV FLOW
     let env = loadEnv();
     env = await promptEnv(env);
-    saveEnv(env);
 
     // 🟢 build context עם env
     const context = buildContext(type, analysis, env);
