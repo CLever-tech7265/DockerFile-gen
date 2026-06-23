@@ -1,3 +1,6 @@
+const { detectImageStrategy } = require("./imaiges/imageStrategyDetector");
+const { resolveDockerImage } = require("./imaiges/imageResolver");
+
 function buildContext(type, analysis, env) {
 
     const hasEnv = env && Object.keys(env).length > 0;
@@ -11,102 +14,36 @@ function buildContext(type, analysis, env) {
         runCmd: analysis.runCmd
     };
 
-    // 🧠 defaults לפי שפה
-    const defaults = {
-        node: { port: 3000, image: "node:18" },
-        python: { port: 8000, image: "python:3.11" },
-        go: { port: 8080, image: "golang:1.22" },
-        java: { port: 8080, image: "openjdk:17" },
-        csharp: { port: 5000, image: "mcr.microsoft.com/dotnet/sdk:8.0" }
+    // 🧠 1. קביעת strategy לפי הפרויקט
+    const strategy = detectImageStrategy(type);
+
+    // 🧠 2. בחירת image מדויק לפי type + strategy
+    const image = resolveDockerImage(type, strategy);
+
+    // 🧠 3. פורטים ברירת מחדל לפי שפה בלבד
+    const portDefaults = {
+        node: 3000,
+        python: 8000,
+        go: 8080,
+        java: 8080,
+        csharp: 5000
     };
 
-    const lang = defaults[type] || {
-        port: null,
-        image: "node:18"
-    };
+    const finalPort = PORT || portDefaults[type] || null;
 
-    const finalPort = PORT || lang.port;
-
+    // 🧠 4. env final (לא מכריחים, רק אם קיים או מינימום PORT)
     const finalEnv = hasEnv
         ? env
-        : { PORT: String(lang.port) };
+        : finalPort
+            ? { PORT: String(finalPort) }
+            : {};
 
-    // 🟢 Node
-    if (type === "node") {
-        return {
-            ...base,
-            image: lang.image,
-            workdir: "/app",
-            port: finalPort,
-            expose: finalPort,
-            env: {
-                ...finalEnv
-            }
-        };
-    }
-
-    // 🟢 Python
-    if (type === "python") {
-        return {
-            ...base,
-            image: lang.image,
-            workdir: "/app",
-            port: finalPort,
-            expose: finalPort,
-            env: {
-                ...finalEnv
-            }
-        };
-    }
-
-    // 🟢 Go
-    if (type === "go") {
-        return {
-            ...base,
-            image: lang.image,
-            workdir: "/app",
-            port: finalPort,
-            expose: finalPort,
-            env: {
-                ...finalEnv
-            }
-        };
-    }
-
-    // 🟢 Java
-    if (type === "java") {
-        return {
-            ...base,
-            image: lang.image,
-            workdir: "/app",
-            port: finalPort,
-            expose: finalPort,
-            env: {
-                ...finalEnv
-            }
-        };
-    }
-
-    // 🟢 C#
-    if (type === "csharp") {
-        return {
-            ...base,
-            image: lang.image,
-            workdir: "/app",
-            port: finalPort,
-            expose: finalPort,
-            env: {
-                ...finalEnv
-            }
-        };
-    }
-
-    // fallback
     return {
         ...base,
-        image: lang.image,
+        image,
         workdir: "/app",
         port: finalPort,
+        expose: finalPort,
         env: finalEnv
     };
 }
