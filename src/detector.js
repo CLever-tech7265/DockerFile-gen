@@ -4,13 +4,42 @@ function detectLanguage() {
 
     const files = fs.readdirSync(process.cwd());
 
-    if (files.includes("package.json")) return "node";
+    const rules = [
+        {
+            name: "node",
+            match: () => files.includes("package.json")
+        },
+        {
+            name: "python",
+            match: () =>
+                files.includes("requirements.txt") ||
+                files.includes("pyproject.toml") ||
+                files.includes("setup.py")
+        },
+        {
+            name: "csharp",
+            match: () => files.some(f => f.endsWith(".csproj"))
+        },
+        {
+            name: "go",
+            match: () => files.includes("go.mod")
+        },
 
-    if (files.includes("requirements.txt")) return "python";
+        // 🟢 JAVA RULE
+        {
+            name: "java",
+            match: () =>
+                files.includes("pom.xml") ||          // Maven
+                files.includes("build.gradle") ||     // Gradle
+                files.some(f => f.endsWith(".java"))  // fallback
+        }
+    ];
 
-    if (files.some(f => f.endsWith(".csproj"))) return "csharp";
-
-    if (files.includes("go.mod")) return "go";
+    for (const rule of rules) {
+        if (rule.match()) {
+            return rule.name;
+        }
+    }
 
     return "unknown";
 }

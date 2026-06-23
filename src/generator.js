@@ -1,44 +1,43 @@
 function generateDockerfile(context) {
 
-    const {
-        type,
-        image,
-        workdir,
-        entry,
-        installCmd,
-        runCmd
-    } = context;
-
     let dockerfile = "";
 
-    // 🧱 בסיס
-    dockerfile += `FROM ${image}\n\n`;
-    dockerfile += `WORKDIR ${workdir}\n\n`;
+    dockerfile += `FROM ${context.image}\n\n`;
+    dockerfile += `WORKDIR ${context.workdir}\n\n`;
 
-    // 📦 התקנות (אם קיימות)
-    if (installCmd) {
-        dockerfile += `# install dependencies\n`;
-        dockerfile += `RUN ${installCmd}\n\n`;
+    // 🟢 ENV safe handling
+    if (context.env && typeof context.env === "object") {
+        Object.entries(context.env).forEach(([k, v]) => {
+            dockerfile += `ENV ${k}=${v}\n`;
+        });
+        dockerfile += `\n`;
     }
 
-    // 📁 העתקת קבצים
+    // 🟢 INSTALL
+    if (context.installCmd) {
+        dockerfile += `RUN ${context.installCmd}\n\n`;
+    }
+
     dockerfile += `COPY . .\n\n`;
 
-    // 🚀 הרצה
-    dockerfile += `CMD ${formatCmd(runCmd)}\n`;
+    // 🟢 FIX: use port instead of expose
+    if (context.port) {
+        dockerfile += `EXPOSE ${context.port}\n\n`;
+    }
+
+    // 🟢 safer CMD formatting
+    if (context.runCmd) {
+        dockerfile += `CMD ${formatCmd(context.runCmd)}\n`;
+    }
 
     return dockerfile;
 }
 
-// הופך פקודה לפורמט Docker תקני
 function formatCmd(cmd) {
-
-    // אם זה כבר array-style
     if (Array.isArray(cmd)) {
         return JSON.stringify(cmd);
     }
 
-    // אם זה string → הופך ל-JSON array
     return JSON.stringify(cmd.split(" "));
 }
 

@@ -1,12 +1,9 @@
 #!/usr/bin/env node
-
+require("dotenv").config();
 const fs = require("fs");
 
 const { detectLanguage } = require("./src/detector");
-
-const { analyzeNode } = require("./src/analyzers/node");
-const { analyzePython } = require("./src/analyzers/python");
-
+const { getAnalyzer } = require("./src/analyzers");
 const { buildContext } = require("./src/contextBuilder");
 const { generateDockerfile } = require("./src/generator");
 
@@ -14,18 +11,15 @@ function main() {
 
     const type = detectLanguage();
 
-    let analysis;
+    
+    const analyzer = getAnalyzer(type);
 
-    if (type === "node") {
-        analysis = analyzeNode();
-    }
-    else if (type === "python") {
-        analysis = analyzePython();
-    }
-    else {
-        console.log("Unsupported project type:", type);
+    if (!analyzer) {
+        console.log("❌ Unsupported project type:", type);
         return;
     }
+
+    const analysis = analyzer();
 
     const context = buildContext(type, analysis);
 
@@ -33,8 +27,7 @@ function main() {
 
     fs.writeFileSync("Dockerfile", dockerfile);
 
-    console.log("Dockerfile created successfully for:", type);
-    console.log("CONTEXT:", context);
-
+    console.log("✅ Dockerfile created successfully for:", type);
 }
+
 main();
