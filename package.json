@@ -1,0 +1,23 @@
+{
+  "name": "dockerfile-gen",
+  "version": "1.0.0",
+  "description": "npm which automatically builds a dockerFile",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "dockerfile-gen": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CLever-tech7265/DockerFile-gen.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CLever-tech7265/DockerFile-gen/issues"
+  },
+  "homepage": "https://github.com/CLever-tech7265/DockerFile-gen#readme"
+}
