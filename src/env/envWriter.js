@@ -1,14 +1,26 @@
 const fs = require("fs");
 
+function escape(value) {
+  if (value == null) return "";
+  const str = String(value);
+
+  if (/[ \n="]/.test(str)) {
+    return `"${str.replace(/"/g, '\\"')}"`;
+  }
+
+  return str;
+}
+
 function saveEnv(env) {
+  let content = "";
 
-    let content = "";
+  Object.keys(env)
+    .sort()
+    .forEach((key) => {
+      content += `${key}=${escape(env[key])}\n`;
+    });
 
-    for (const [key, value] of Object.entries(env)) {
-        content += `${key}=${value}\n`;
-    }
-
-    fs.writeFileSync(".env", content);
+  fs.writeFileSync(".env", content);
 }
 
 module.exports = { saveEnv };

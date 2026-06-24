@@ -3,19 +3,15 @@ const path = require("path");
 const dotenv = require("dotenv");
 
 function loadEnv() {
+  const envPath = path.join(process.cwd(), ".env");
 
-    const envPath = path.join(process.cwd(), ".env");
-
-    if (fs.existsSync(envPath)) {
-
-        const result = dotenv.config({
-            path: envPath
-        });
-
-        return result.parsed || {};
-    }
-
+  if (!fs.existsSync(envPath)) {
     return {};
+  }
+
+  const result = dotenv.config({ path: envPath });
+
+  return result.parsed || {};
 }
 
 module.exports = { loadEnv };
