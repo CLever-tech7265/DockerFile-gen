@@ -1,7 +1,10 @@
+const { getCopyStrategy } = require("./copyStrategy");
+
 function generateDockerfile(context) {
 
     let dockerfile = "";
 
+    // 🟢 base
     dockerfile += `FROM ${context.image}\n\n`;
     dockerfile += `WORKDIR ${context.workdir}\n\n`;
 
@@ -13,19 +16,19 @@ function generateDockerfile(context) {
         dockerfile += `\n`;
     }
 
-    // 🟢 INSTALL
-    if (context.installCmd) {
-        dockerfile += `RUN ${context.installCmd}\n\n`;
+    // 🟢 COPY + RUN strategy (חדש!)
+    const steps = getCopyStrategy(context.type);
+
+    for (const step of steps) {
+        dockerfile += `${step}\n\n`;
     }
 
-    dockerfile += `COPY . .\n\n`;
-
-    // 🟢 FIX: use port instead of expose
+    // 🟢 PORT
     if (context.port) {
         dockerfile += `EXPOSE ${context.port}\n\n`;
     }
 
-    // 🟢 safer CMD formatting
+    // 🟢 CMD safe formatting
     if (context.runCmd) {
         dockerfile += `CMD ${formatCmd(context.runCmd)}\n`;
     }
@@ -34,6 +37,7 @@ function generateDockerfile(context) {
 }
 
 function formatCmd(cmd) {
+
     if (Array.isArray(cmd)) {
         return JSON.stringify(cmd);
     }
