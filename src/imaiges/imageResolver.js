@@ -65,7 +65,7 @@ function resolveDockerImage(type, strategy, version) {
     }
 
     // fallback
-    return "alpine";
+    return "ubuntu:latest";
 }
 
 module.exports = { resolveDockerImage };

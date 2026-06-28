@@ -1,6 +1,7 @@
 const { detectImageStrategy } = require("./imaiges/imageStrategyDetector");
 const { resolveDockerImage } = require("./imaiges/imageResolver");
 const { detectProjectVersion } = require("./projectVersionDetector");
+const { updateImageWithDocker } = require("./dockerLiveUpdater");
 
 function buildContext(type, analysis, env) {
 
@@ -22,7 +23,12 @@ function buildContext(type, analysis, env) {
     const version = detectProjectVersion(type);
 
     // 🧠 3. image מדויק לפי type + strategy + version
-    const image = resolveDockerImage(type, strategy, version);
+    const dockerImage = updateImageWithDocker(type, strategy, version);
+    const image = dockerImage || resolveDockerImage(type, strategy, version);
+    
+    // ... המשך קוד כמו קודם ...
+    
+    console.log(`✅ image: ${image}`);
 
     // 🧠 4. פורטים ברירת מחדל לפי שפה
     const portDefaults = {
