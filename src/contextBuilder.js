@@ -1,7 +1,7 @@
 const { detectImageStrategy } = require("./imaiges/imageStrategyDetector");
 const { resolveDockerImage } = require("./imaiges/imageResolver");
 const { detectProjectVersion } = require("./projectVersionDetector");
-const { updateImageWithDocker } = require("./dockerLiveUpdater");
+const { updateImageWithDocker } = require("./imaiges/dockerLiveUpdater");
 
 function buildContext(type, analysis, env) {
 
